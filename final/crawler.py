@@ -44,14 +44,14 @@ class Crawler(object):
         for channel, i in zip(self.channels, range(len(self.channels))):
             channel[1] = "http://programtv.se.pl/" + channel[1]
 
-    def get_archive_links(self, index):  # dla jednego dnia
+    def get_archive_links(self, index): 
         arch_links = []
         website_file = None
         print("Getting archive links...")
 
         try:
             website_file = urllib.request.urlopen(
-                self.channels[index][1])  # dla niektorych kanalow bark archwiwum mimo linku na glownej. [1] to link
+                self.channels[index][1]) 
 
         except URLError as e:
             print(self.channels[index][0] + " - unable to open channel archive: " + e.reason)
@@ -60,7 +60,7 @@ class Crawler(object):
         website_file.close()
         links2 = SoupStrainer('td', {'class': 'archRight'})
         soup2 = BeautifulSoup(website_html, "html.parser", parse_only=links2)
-        for element in soup2.find_all():  # <section class=tvArch"section',{'class' :'tvArch'
+        for element in soup2.find_all():
             var = element.get('href')
             arch_links.append(var)
 
@@ -70,10 +70,8 @@ class Crawler(object):
         return arch_links
 
     def print_archive_links(self, index):
-        print("print links...")
         for link, i in zip(self.channels[index][2], range(len(self.channels[index][2]))):
             print(str(i) + ". " + link[-11:-1])
-        print("done")
 
     def prep_links(self, channel_index):
         for link in self.channels[channel_index][2]:
@@ -88,15 +86,14 @@ class Crawler(object):
     def get_day(self, day_link, channel_index, date_index):
         day_schedule = []
         website_file = None
-        # ramowka z dnia
+        
         try:
             website_file = urllib.request.urlopen(day_link)
 
         except URLError as e:
             print(self.channels[channel_index][0] + " " +
                   self.channels[channel_index][2][date_index] +
-                  " - unable to open channel archive: " +
-                  e.reason)
+                  " - unable to open channel archive: " + e.reason)
 
         website_html = website_file.read()
         website_file.close()
@@ -106,7 +103,7 @@ class Crawler(object):
             info = element.get_text("\n", strip=True)
             infotab = info.split("\n")
 
-            if len(infotab) == 6:  # jesli jest ciag dalszy tytulu
+            if len(infotab) == 6:  
                 day_row = [self.channels[channel_index][0],
                            self.channels[channel_index][2][date_index][-11:-1],
                            infotab[1], infotab[3],
@@ -114,7 +111,7 @@ class Crawler(object):
                                .replace("/", " ")]
                 print(day_row)
                 day_schedule.append(day_row)
-                # print(day_row)
+
             elif len(infotab) == 5:
                 day_row = [self.channels[channel_index][0],
                            self.channels[channel_index][2][date_index][-11:-1],
@@ -123,7 +120,6 @@ class Crawler(object):
                            infotab[4]]
                 print(day_row)
                 day_schedule.append(day_row)
-                # print(day_row)
 
             else:
                 day_row = [self.channels[channel_index][0],
@@ -132,16 +128,7 @@ class Crawler(object):
                            infotab[2]]
                 day_schedule.append(day_row)
 
-        # print(day_schedule)
         self.schedule.append(day_schedule)
-
-    def read_channels_index_auto(self):  # nie uzywana
-        for i in [129]:
-            if 0 <= i < len(self.channels):
-                self.get_archive_links(i)
-                self.prep_links(i)
-                self.print_archive_links(i)
-                self.read_date_index(i)
 
     def read_channel_index(self):
         pick = int(input("enter channel number: "))
@@ -160,7 +147,7 @@ class Crawler(object):
 
         day_number = int(input("enter number of days to download: "))
         print("picked date num: " + str(day_number))
-        # dateIndex = 752
+        
         for day_offset in range(0, day_number):
             if 0 <= date_index + day_number < len(self.channels[channel_index][2]):
                 self.get_day(self.channels[channel_index][2][date_index + day_offset],
@@ -172,7 +159,6 @@ class Crawler(object):
 
     def print_schedule(self):
         for day in self.schedule:
-            # print(day)
             for row in day:
                 print(row)
 
@@ -195,8 +181,7 @@ class Crawler(object):
             text_file.write("CHANNEL;DATE;STARTHOUR;ENDHOUR;TITLE\n")
             for day in self.schedule:
                 for row in day:
-                    text_file.write(row[0] + ";" + row[1] + ";" + row[2] + ":00" + ";" + row[3] + ":00" + ";" + row[
-                        4] + "\n")  # unidecode(row[4])
+                    text_file.write(row[0] + ";" + row[1] + ";" + row[2] + ":00" + ";" + row[3] + ":00" + ";" + row[4] + "\n") 
         print("done")
 
 
